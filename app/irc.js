@@ -176,55 +176,54 @@ ircworker.prototype.checkIfWon = function(msg) {
 }
 
 ircworker.prototype.getQuestionFromMessage = function(msg) {
-	var spl = msg.split(this.opts.questionPrefix);
-	spl = spl[spl.length-1];
-	if (this.opts.questionSuffix != '' && typeof this.opts.questionSuffix !== 'undefined') {
-		spl = spl.split(this.opts.questionSuffix)[0];
-	}
-	return spl.trim();
+	return returnMatch(msg, this.opts.questionPrefix, this.opts.questionSuffix);
 }
 
 ircworker.prototype.getRaffleFromMessage = function(msg) {
-	var spl = msg.split(this.opts.rafflePrefix);
-	spl = spl[spl.length-1];
-	if (this.opts.raffleSuffix != '' && typeof this.opts.raffleSuffix !== 'undefined') {
-		spl = spl.split(this.opts.raffleSuffix)[0];
-	}
-	return spl.trim();
+	return returnMatch(msg, this.opts.rafflePrefix, this.opts.raffleSuffix);
 }
 
 ircworker.prototype.messageContainsQuestion = function(msg) {
-	var re = new RegExp(this.opts.questionPrefix, "g");
-	return msg.match(re) && typeof this.opts.questionPrefix !== 'undefined' && this.opts.questionPrefix != '';
+	return stringContains(msg, this.opts.questionPrefix);
 }
 
 ircworker.prototype.raffleWasCompleted = function(msg) {
-	var re = new RegExp(this.opts.wonrafflePrefix, "g");
-	return msg.match(re) && typeof this.opts.rafflePrefix !== 'undefined' && this.opts.rafflePrefix != '';
+	return stringContains(msg, this.opts.wonrafflePrefix);
 }
 
 ircworker.prototype.messageContainsRaffle = function(msg) {
-	var re = new RegExp(this.opts.rafflePrefix, "g");
-	return msg.match(re) && typeof this.opts.rafflePrefix !== 'undefined' && this.opts.rafflePrefix != '';
+	return stringContains(msg, this.opts.rafflePrefix);
 }
 
 ircworker.prototype.messageWasAnswered = function(msg) {
-	var re = new RegExp(this.opts.answerPrefix, "g");
-	var ree = new RegExp(this.opts.noanswerPrefix, "g");
-	return (msg.match(re) || msg.match(ree)) && this.opts.answerPrefix != '' && this.opts.answerSuffix != '';
+	return stringContains(msg, this.opts.answerPrefix, this.opts.noanswerPrefix);
 }
 
 ircworker.prototype.getRaffleWinnerFromMessage = function(msg) {
-	var spl = msg.split(this.opts.wonrafflePrefix);
-	spl = spl[spl.length-1];
-	if (this.opts.wonraffleSuffix != '' && typeof this.opts.wonraffleSuffix !== 'undefined') {
-		spl = spl.split(this.opts.wonraffleSuffix)[0];
-	}
-	return spl.trim();
+	return returnMatch(msg, this.opts.wonrafflePrefix, this.opts.wonraffleSuffix);
 }
 
 ircworker.prototype.isRelevantUser = function(from) {
 	return from.toLowerCase() == this.opts.triviabot;
+}
+
+ircworker.prototype.returnMatch = function(msg, a, b) {
+	var spl = msg.split(a);
+	spl = spl[spl.length-1];
+	if (b != '' && typeof b !== 'undefined') {
+		spl = spl.split(b)[0];
+	}
+	return spl.trim();
+}
+
+ircworker.prototype.stringContains = function(msg, a, b) {
+	var re = new RegExp(a, "g");
+	if (typeof b == 'undefined') {
+		return msg.match(re) && a != '' && typeof a !== 'undefined';
+	} else {
+		var ree = new RegExp(b, "g");
+		return (msg.match(re) || msg.match(ree)) && a != '' && typeof a !== 'undefined' && b != '' && typeof b !== 'undefined';
+	}
 }
 
 ircworker.prototype.log = function(msg) {

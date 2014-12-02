@@ -26,9 +26,9 @@ db.prototype.getAnswer = function(question, callback) {
 	});
 }
 
-db.prototype.savePrefixes = function(streamer, questionP, answerP, noanswerP, raffleP, wonraffleP, questionS, answerS, noanswerS, raffleS, wonraffleS, callback) {
+db.prototype.savePrefixes = function(streamer, questionP, answerP, noanswerP, raffleP, wonraffleP, questionS, answerS, noanswerS, raffleS, wonraffleS, spamming, callback) {
 	if (callback == null || typeof callback === 'undefined') {callback = function(err){}};
-	this.db.prefixes.update({'streamer': streamer}, { $set: {'questionP': questionP, 'answerP': answerP, 'questionS': questionS, 'answerS': answerS, 'noanswerP': noanswerP, 'noanswerS': noanswerS, 'raffleS': raffleS, 'raffleP': raffleP, 'wonraffleS': wonraffleS, 'wonraffleP': wonraffleP} }, {upsert: true}, function(err) {
+	this.db.prefixes.update({'streamer': streamer}, { $set: {'questionP': questionP, 'answerP': answerP, 'questionS': questionS, 'answerS': answerS, 'noanswerP': noanswerP, 'noanswerS': noanswerS, 'raffleS': raffleS, 'raffleP': raffleP, 'wonraffleS': wonraffleS, 'wonraffleP': wonraffleP, "spamming": spamming} }, {upsert: true}, function(err) {
 		callback(err);
 	});
 }

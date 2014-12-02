@@ -29,6 +29,8 @@ io.on('connection', function(socket) {
 	socket.on('connectallmonitors', function() {bot.connectAllMonitors()});
 	socket.on('disconnectallmonitors', function() {bot.disconnectAllMonitors()});
 	socket.on('message', function(data) {bot.sendMessage(data.streamer, data.message)});
+	socket.on('kappa', function(data) {bot.kappa(data.streamer)});
+	socket.on('nokappa', function(data) {bot.nokappa(data.streamer)});
 	
 	/* server -> client */
 	bot.events.on('know', function(data) {socket.emit('know', data)});
@@ -43,6 +45,8 @@ io.on('connection', function(socket) {
 	bot.events.on('enterraffle', function(data) {socket.emit('enterraffle', data)});
 	bot.events.on('wonraffle', function(opts) {socket.emit('wonraffle', opts)});
 	bot.events.on('lostraffle', function(data) {socket.emit('lostraffle', data)});
+	bot.events.on('kappa', function(opts) {socket.emit('kappa', opts)});
+	bot.events.on('nokappa', function(opts) {socket.emit('nokappa', opts)});
 	
 	socket.on('disconnect', function() {
 		socket.removeAllListeners();

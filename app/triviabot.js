@@ -36,7 +36,7 @@ function triviabot(opts) {
 
 triviabot.prototype.addMonitor = function(opts) {
 	var self = this;
-	db.savePrefixes(opts.streamer, opts.questionPrefix, opts.answerPrefix, opts.noanswerPrefix, opts.rafflePrefix, opts.wonrafflePrefix, opts.questionSuffix, opts.answerSuffix, opts.noanswerSuffix, opts.raffleSuffix, opts.wonraffleSuffix, function(err){
+	db.savePrefixes(opts.streamer, opts.questionPrefix, opts.answerPrefix, opts.noanswerPrefix, opts.rafflePrefix, opts.wonrafflePrefix, opts.questionSuffix, opts.answerSuffix, opts.noanswerSuffix, opts.raffleSuffix, opts.wonraffleSuffix, false, function(err){
 		opts.me = self.opts.me;
 		opts.password = self.opts.password;
 
@@ -79,6 +79,8 @@ triviabot.prototype.connectMonitor = function(opts) {
 	test.events.on('enterraffle', function(data) {self.events.emit('enterraffle',data)});
 	test.events.on('lostraffle', function(data) {self.events.emit('lostraffle',data)});
 	test.events.on('wonraffle', function(data) {self.events.emit('wonraffle',data)});
+	test.events.on('spam', function(data) {self.events.emit('spam', data)});
+	test.events.on('stopspam', function(data) {self.events.emit('stopspam', data)});
 	
 	test.start();
 	this.monitors[index]['status'] = 1;
@@ -134,6 +136,22 @@ triviabot.prototype.sendMessage = function(streamer, message) {
 	var index = this.getMonitorIndex(streamer);
 	if (index > -1) {
 		this.refs[index].say(message);
+	}
+}
+
+triviabot.prototype.kappa = function(streamer) {
+	var index = this.getMonitorIndex(streamer);
+	if (index > -1) {
+		this.refs[index].spam('Kappa', 30);
+		this.events.emit('kappa', {streamer:streamer});
+	}
+}
+
+triviabot.prototype.nokappa = function(streamer) {
+	var index = this.getMonitorIndex(streamer);
+	if (index > -1) {
+		this.refs[index].stopSpam();
+		this.events.emit('nokappa', {streamer:streamer});
 	}
 }
 module.exports = triviabot;

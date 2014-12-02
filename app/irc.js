@@ -9,6 +9,8 @@ function ircworker(opts, db) {
 	this.opts = opts;
 	this.currentQuestion = null;
 	this.currentAnswer = null;
+	this.spamInterval = null;
+	this.opts.spamming = false;
 	this.answerQue = [];
 	this.recordAnswers = false;
 	this.answered = false;
@@ -28,6 +30,7 @@ ircworker.prototype.start = function() {
 			if (data.raffleS != null) {self.opts.raffleSuffix = data.raffleS;}
 			if (data.wonraffleP != null) {self.opts.wonrafflePrefix = data.wonraffleP;}
 			if (data.wonraffleS != null) {self.opts.wonraffleSuffix = data.wonraffleS;}
+			if (data.spamming != null) {self.opts.spamming = data.spamming;}
 			self.instance();
 		} else {
 			self.log('error: prefixes weren\'t supplied and none are in the db for this streamer, exiting');
@@ -232,6 +235,29 @@ ircworker.prototype.log = function(msg) {
 
 ircworker.prototype.say = function(msg) {
 	this.bot.say('#'+this.opts.streamer.toLowerCase(), msg);
+}
+
+ircworker.prototype.spam = function(msg, interval) {
+	this.stopSpam();
+	var self = this;
+	this.opts.spamming = true;
+	this.spamMessage = msg;
+	this.spamInterval = setInterval(function() {
+		self.say(self.spamMessage);
+	},interval*1000);
+	this.events.emit('spam');
+	this.log('spamming '+msg);
+}
+
+ircworker.prototype.stopSpam = function() {
+	this.spamMessage = '';
+	if (this.opts.spamming) {
+		this.opts.spamming = false;
+		clearInterval(this.spamInterval);
+		this.spamInterval = null;
+		this.events.emit('nospam');
+		this.log('stopping the spam');
+	}
 }
 
 module.exports = ircworker;

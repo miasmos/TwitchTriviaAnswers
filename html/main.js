@@ -22,6 +22,8 @@ socket.on('connectmonitor', function(data) {toggleRowActivity(data, 1)});
 socket.on('enterraffle', function(data) {raffleUpdate(data, 0)});
 socket.on('wonraffle', function(data) {raffleUpdate(data, 1)});
 socket.on('lostraffle', function(data) {raffleUpdate(data, 2)});
+socket.on('kappa', function(data) {kappa(data, 1)});
+socket.on('nokappa', function(data) {kappa(data, 0)});
 /* end socket handlers */
 
 /* ui */
@@ -72,6 +74,14 @@ $(document).on('click', '.connectall', function(){
 	socket.emit('connectallmonitors');
 });
 
+$(document).on('click', '.kappa img', function(){
+	socket.emit('nokappa', {streamer: $(this).parent().parent().attr('id')});
+});
+
+$(document).on('click', '.nokappa img', function(){
+	socket.emit('kappa', {streamer: $(this).parent().parent().attr('id')});
+});
+
 $(document).on('keypress', '.message input', function(e) {
 	if (e.which == 13 && $(this).val().trim() != '') {
 		socket.emit('message', {streamer: $(this).parent().parent().attr('id'), message: $(this).val()});
@@ -87,15 +97,17 @@ function newMonitor(data) {
 		<tr id="'+data.streamer+'">\
 			<td class="streamer">'+data.streamer+'</td>\
 			<td class="triviabot">'+data.triviabot+'</td>\
-			<td class="question"></td>\
-			<td class="raffle"></td>\
+			<td class="question" style="width:300px; text-align: center;"></td>\
+			<td class="raffle" style="width:80px"></td>\
 			<td class="message"><input/></td>\
 			<td class="disconnect"><button>Disconnect</button>\
 			<td class="remove"><button>Remove</button></td>\
 			<td class="openstream"><a href="http://twitch.tv/'+data.streamer+'" target="_blank"><button>Open Stream</button></a></td>\
+			<td class="nokappa"><img src="images/kappa.png" style="opacity:0.3;max-height:20px;cursor:pointer;"/></td>\
 		</tr>');
 
 	if (!data.status) {toggleRowActivity(data, 0)}
+	if (data.spamming) {kappa(data, 1)}
 }
 
 function questionUpdate(data, status) {
@@ -137,6 +149,16 @@ function raffleUpdate(data, status) {
 			$('#'+data.streamer+' .raffle').css('background-color', 'de6c6c');
 			setTimeout(resetBackground($('#'+data.streamer+' .raffle')), 10000);
 			break; 
+	}
+}
+
+function kappa(data, status) {
+	if (status) {
+		$('#'+data.streamer+' .nokappa img').css('opacity', '1.0');
+		$('#'+data.streamer+' .nokappa').removeClass('nokappa').addClass('kappa');
+	} else {
+		$('#'+data.streamer+' .kappa img').css('opacity', '0.3');
+		$('#'+data.streamer+' .kappa').removeClass('kappa').addClass('nokappa');
 	}
 }
 

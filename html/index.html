@@ -1,0 +1,42 @@
+<html>
+<head>
+	<title>TriviaBot v0.1</title>
+</head>
+<body>
+	<div>
+	<table id="streamers">
+		<tr>
+			<th>Streamer</th>
+			<th>Bot Name</th>
+			<th>Question</th>
+			<th>Raffle</th>
+			<th>Message</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+	</table>
+	</div>
+	<button type="button" class="add">Add monitor</button>
+	<button type="button" class="disconnectall">Disconnect all</button>
+	<button type="button" class="connectall">Connect all</button>
+	<div id="addform" style="display:none;">
+		Streamer*<input id="i_streamer" value="flosd"/><br/>
+		Trivia Bot Name*<input id="i_triviabot" value="boxboxbot"/><br/>
+		Question Prefix*<input id="i_qPrefix"value="Next question is : " /><br/>
+		Question Suffix<input id="i_qSuffix" value=""/><br/>
+		Answer Prefix*<input id="i_aPrefix"/ value="Congratulations to "><br/>
+		Answer Suffix<input id="i_aSuffix" value="("/><br/>
+		No Answer Prefix*<input id="i_naPrefix" value="The correct answer was : "/><br/>
+		No Answer Suffix<input id="i_naSuffix" value=". Next question in "/><br/>
+		Raffle Prefix<input id="i_rPrefix" value="Keyword to enter is : \'"/><br/>
+		Raffle Suffix<input id="i_rSuffix" value="\' ("/><br/>
+		Won Raffle Prefix<input id="i_wrPrefix" value=". Winner is "/><br/>
+		Won Raffle Suffix<input id="i_wrSuffix" value=". Congratulations! "/><br/>
+		<button id="i_close">Close</button>
+	</div>
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="main.js"></script>
+</body>
+</html>

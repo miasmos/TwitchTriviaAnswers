@@ -1,2 +1,2 @@
-"C:\Program Files\MongoDB 2.6 Standard\bin\mongod.exe" --dbpath=".\db"
+"a:\mongo\bin\mongod.exe" --dbpath=".\db"
 pause

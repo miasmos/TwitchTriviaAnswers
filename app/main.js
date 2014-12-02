@@ -13,9 +13,9 @@ var app = new express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.use(express.static(__dirname + '/html'));
+app.use(express.static(__dirname + '/../html'));
 app.get('/', function(req, res) {
-	res.sendFile(__dirname+'/html/index.html');
+	res.sendFile(__dirname+'/../html/index.html');
 });
 
 io.on('connection', function(socket) {

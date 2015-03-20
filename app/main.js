@@ -53,5 +53,5 @@ io.on('connection', function(socket) {
 		bot.events.removeAllListeners();
 	});
 });
-http.listen(8080);
+http.listen(3443);
 /* end web app */

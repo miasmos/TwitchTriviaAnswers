@@ -19,14 +19,13 @@ function triviabot(opts) {
 			self.monitors = data;
 
 			for (var i in self.monitors) {
-				var opts = self.opts;
-				opts.streamer = self.monitors[i]['streamer'];
-				opts.triviabot = self.monitors[i]['triviabot'];
+				self.opts.streamer = self.monitors[i]['streamer'];
+				self.opts.triviabot = self.monitors[i]['triviabot'];
 
-				var test = new irc(opts, db);
-				self.refs.push(test);
+				var test = new irc(self.opts, db);
+				self.refs.push(test);	
 				if (self.monitors[i]['status'] == 1) {
-					self.connectMonitor(self.monitors[i]);
+					self.connectMonitor(self.opts);
 				}
 			}
 			console.log('app started');
@@ -58,6 +57,7 @@ triviabot.prototype.disconnectMonitor = function(opts) {
 	var index = this.getMonitorIndex(streamer);
 	if (index > -1) {
 		this.refs[index].stop();
+		this.refs[index].stopSpam();
 		this.monitors[index]['status'] = 0;
 		this.events.emit('disconnectmonitor', {streamer:streamer});
 		console.log('disconnected monitor: '+streamer);

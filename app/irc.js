@@ -14,6 +14,7 @@ function ircworker(opts, db) {
 	this.answerQue = [];
 	this.recordAnswers = false;
 	this.answered = false;
+	this.salt = true;
 }
 
 ircworker.prototype.start = function() {
@@ -77,10 +78,13 @@ ircworker.prototype.main = function() {
 					self.log('New question detected: "'+self.currentQuestion+'"');
 					
 					self.db.getAnswer(self.currentQuestion, function(err, data) {
-						if (!err && data !== null && typeof(data.answer) !== 'undefined') {
-							self.log('I know this one: "'+data.answer+'"');
+						if (!err && data !== null && typeof(data.answer) !== 'undefined' && data.answer.indexOf(' or ') == -1) {
+							var t = self.randomRange(1000, 1500);
+							self.log('I know this one: "'+data.answer+'", answering in ' + t/1000 + ' seconds.');
 							self.events.emit('know', {streamer: self.opts.streamer, question: self.currentQuestion, answer: data.answer});
-							self.bot.say(to, data.answer.toLowerCase());
+							setTimeout(function(){
+								self.bot.say(to, data.answer.toLowerCase());
+							}, t);
 						} else {
 							self.log('I don\'t know the answer, waiting for it...');
 							self.events.emit('dontknow', {streamer: self.opts.streamer, question: self.currentQuestion, answer: ''});
@@ -139,8 +143,23 @@ ircworker.prototype.main = function() {
 							self.events.emit('lostraffle', {streamer: self.opts.streamer});
 						}
 					}
+				} 
+				
+				if ( self.messageContainsSlots(message) ) {
+					setTimeout(function(){
+						self.bot.say(to, '!slots');
+					}, self.randomRange(0,30000));
+					self.events.emit('slots', {streamer: self.opts.streamer});
 				}
-			} 
+			} else {
+				if ( self.checkIfWon(message) && self.salt ) {
+					self.bot.say(to, 'PJSalt');
+					self.log(from + ' is Salty', {streamer: self.opts.streamer});
+					self.events.emit('salt');
+					self.salt = false;
+					setTimeout(function() {self.salt = true;}, 10000);
+				}
+			}
 			
 			if ( self.recordAnswers ) {
 				self.answerQue.push([from,message]);
@@ -174,40 +193,44 @@ ircworker.prototype.getAnswerFromMessage = function(msg) {
 	return -1;
 }
 
+ircworker.prototype.messageContainsSlots = function(msg) {
+	return this.checkIfWon(msg) && msg.indexOf(' !slots ') > -1;
+}
+
 ircworker.prototype.checkIfWon = function(msg) {
 	return msg.indexOf(this.opts.me) > -1;
 }
 
 ircworker.prototype.getQuestionFromMessage = function(msg) {
-	return returnMatch(msg, this.opts.questionPrefix, this.opts.questionSuffix);
+	return this.returnMatch(msg, this.opts.questionPrefix, this.opts.questionSuffix);
 }
 
 ircworker.prototype.getRaffleFromMessage = function(msg) {
-	return returnMatch(msg, this.opts.rafflePrefix, this.opts.raffleSuffix);
+	return this.returnMatch(msg, this.opts.rafflePrefix, this.opts.raffleSuffix);
 }
 
 ircworker.prototype.messageContainsQuestion = function(msg) {
-	return stringContains(msg, this.opts.questionPrefix);
+	return this.stringContains(msg, this.opts.questionPrefix);
 }
 
 ircworker.prototype.raffleWasCompleted = function(msg) {
-	return stringContains(msg, this.opts.wonrafflePrefix);
+	return this.stringContains(msg, this.opts.wonrafflePrefix);
 }
 
 ircworker.prototype.messageContainsRaffle = function(msg) {
-	return stringContains(msg, this.opts.rafflePrefix);
+	return this.stringContains(msg, this.opts.rafflePrefix);
 }
 
 ircworker.prototype.messageWasAnswered = function(msg) {
-	return stringContains(msg, this.opts.answerPrefix, this.opts.noanswerPrefix);
+	return this.stringContains(msg, this.opts.answerPrefix, this.opts.noanswerPrefix);
 }
 
 ircworker.prototype.getRaffleWinnerFromMessage = function(msg) {
-	return returnMatch(msg, this.opts.wonrafflePrefix, this.opts.wonraffleSuffix);
+	return this.returnMatch(msg, this.opts.wonrafflePrefix, this.opts.wonraffleSuffix);
 }
 
 ircworker.prototype.isRelevantUser = function(from) {
-	return from.toLowerCase() == this.opts.triviabot;
+	return from.toLowerCase() == this.opts.triviabot.toLowerCase();
 }
 
 ircworker.prototype.returnMatch = function(msg, a, b) {
@@ -220,13 +243,8 @@ ircworker.prototype.returnMatch = function(msg, a, b) {
 }
 
 ircworker.prototype.stringContains = function(msg, a, b) {
-	var re = new RegExp(a, "g");
-	if (typeof b == 'undefined') {
-		return msg.match(re) && a != '' && typeof a !== 'undefined';
-	} else {
-		var ree = new RegExp(b, "g");
-		return (msg.match(re) || msg.match(ree)) && a != '' && typeof a !== 'undefined' && b != '' && typeof b !== 'undefined';
-	}
+	if (typeof b === 'undefined') {return msg.indexOf(a) > -1 && a != '' && typeof a !== 'undefined';}
+	return (msg.indexOf(a) > -1 || msg.indexOf(b) > -1) && a != '' && typeof a !== 'undefined' && b != '' && typeof b !== 'undefined';	
 }
 
 ircworker.prototype.log = function(msg) {
@@ -258,6 +276,14 @@ ircworker.prototype.stopSpam = function() {
 		this.events.emit('nospam');
 		this.log('stopping the spam');
 	}
+}
+
+ircworker.prototype.randomRange = function(low, high) {
+	return Math.floor(Math.random() * high) + low;
+}
+
+ircworker.prototype.randomChoice = function(pct) {
+	return this.randomRange(0, 100) < pct; 
 }
 
 module.exports = ircworker;

@@ -79,7 +79,7 @@ ircworker.prototype.main = function() {
 					
 					self.db.getAnswer(self.currentQuestion, function(err, data) {
 						if (!err && data !== null && typeof(data.answer) !== 'undefined' && data.answer.indexOf(' or ') == -1) {
-							var t = self.randomRange(1000, 1500);
+							var t = self.randomRange(1500, 3500);
 							self.log('I know this one: "'+data.answer+'", answering in ' + t/1000 + ' seconds.');
 							self.events.emit('know', {streamer: self.opts.streamer, question: self.currentQuestion, answer: data.answer});
 							setTimeout(function(){
@@ -152,13 +152,13 @@ ircworker.prototype.main = function() {
 					self.events.emit('slots', {streamer: self.opts.streamer});
 				}
 			} else {
-				if ( self.checkIfWon(message) && self.salt ) {
-					self.bot.say(to, 'PJSalt');
-					self.log(from + ' is Salty', {streamer: self.opts.streamer});
-					self.events.emit('salt');
-					self.salt = false;
-					setTimeout(function() {self.salt = true;}, 10000);
-				}
+				// if ( self.checkIfWon(message) && self.salt ) {
+				// 	self.bot.say(to, 'PJSalt');
+				// 	self.log(from + ' is Salty', {streamer: self.opts.streamer});
+				// 	self.events.emit('salt');
+				// 	self.salt = false;
+				// 	setTimeout(function() {self.salt = true;}, 10000);
+				// }
 			}
 			
 			if ( self.recordAnswers ) {

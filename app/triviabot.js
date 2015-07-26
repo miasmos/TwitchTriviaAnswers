@@ -1,5 +1,6 @@
 var irc = require('./irc.js');
 var dbInclude = require('./db.js');
+var twitch = require('./node-twitchtv.js');
 var events = require('events').EventEmitter;
 var db = new dbInclude();
 
@@ -11,6 +12,7 @@ function triviabot(opts) {
 		return;
 	}
 	this.opts = opts;
+	this.twitch = new TwitchClient({client_id: "20ngtyh1qzqoxnti1hupdcuayisusuv", scope: "channel_read"});
 	this.monitors = [];
 	this.refs = [];
 	
@@ -29,6 +31,8 @@ function triviabot(opts) {
 				}
 			}
 			console.log('app started');
+
+			self.statusInterval = setInterval(function(){self.checkStreamStatus();}, 30000);
 		}
 	});
 }
@@ -81,6 +85,8 @@ triviabot.prototype.connectMonitor = function(opts) {
 	test.events.on('wonraffle', function(data) {self.events.emit('wonraffle',data)});
 	test.events.on('spam', function(data) {self.events.emit('spam', data)});
 	test.events.on('stopspam', function(data) {self.events.emit('stopspam', data)});
+	test.events.on('streamonline', function(data) {self.events.emit('status', data)});
+	test.events.on('streamoffline', function(data) {self.events.emit('status', data)});
 	
 	test.start();
 	this.monitors[index]['status'] = 1;
@@ -152,6 +158,26 @@ triviabot.prototype.nokappa = function(streamer) {
 	if (index > -1) {
 		this.refs[index].stopSpam();
 		this.events.emit('nokappa', {streamer:streamer});
+	}
+}
+
+triviabot.prototype.checkStreamStatus = function() {
+	var self = this;
+
+	for (var i = 0; i < self.monitors.length; i++) {
+		var streamer = self.monitors[i].streamer;
+
+		status(streamer, function(streamer,s) {
+			var e = s ? 'streamonline' : 'streamoffline';
+			self.events.emit(e, {streamer:streamer});
+		});
+	}
+
+	function status(streamer, cb) {
+		self.twitch.streams({ channel: streamer }, function(e, res) {
+			if (e || !res || !res.stream) cb(streamer,false);
+			else cb(streamer,true);
+		});
 	}
 }
 module.exports = triviabot;

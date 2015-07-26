@@ -1,0 +1,22 @@
+#streamers .status {
+	width: 10px;
+	height: 10px;
+}
+
+#streamers .status div {
+	width: inherit;
+	height: inherit;
+	border-radius: 5px;
+}
+
+.active div {
+	background-color: green;
+}
+
+.inactive div {
+	background-color: #DDD;
+}
+
+tr {
+	text-align: center;
+}

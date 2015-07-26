@@ -1,7 +1,7 @@
 var triviabot = require('./triviabot.js');
 var opts = {
 	me: 'Nnehl',
-	password: 'oauth:o0x961m5ag4wffv801b38j8ae2y6qp',
+	password: 'oauth:hwrrgqqazda3h30xoxrutz9c15qiq8',
 	email: 'stephenwpoole@gmail.com',
 	celebrate: 'I WON!'
 };
@@ -47,6 +47,8 @@ io.on('connection', function(socket) {
 	bot.events.on('lostraffle', function(data) {socket.emit('lostraffle', data)});
 	bot.events.on('kappa', function(opts) {socket.emit('kappa', opts)});
 	bot.events.on('nokappa', function(opts) {socket.emit('nokappa', opts)});
+	bot.events.on('streamonline', function(opts) {socket.emit('streamonline', opts)});
+	bot.events.on('streamoffline', function(opts) {socket.emit('streamoffline', opts)});
 	
 	socket.on('disconnect', function() {
 		socket.removeAllListeners();

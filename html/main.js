@@ -24,6 +24,8 @@ socket.on('wonraffle', function(data) {raffleUpdate(data, 1)});
 socket.on('lostraffle', function(data) {raffleUpdate(data, 2)});
 socket.on('kappa', function(data) {kappa(data, 1)});
 socket.on('nokappa', function(data) {kappa(data, 0)});
+socket.on('streamonline', function(data) {streamStatus(data, 1)});
+socket.on('streamoffline', function(data) {streamStatus(data, 0)});
 /* end socket handlers */
 
 /* ui */
@@ -95,6 +97,7 @@ function newMonitor(data) {
 	if ($('#'+data.streamer).length) {return}
 	$('#streamers').append('\
 		<tr id="'+data.streamer+'">\
+			<td class="status inactive"><div></div></td>\
 			<td class="streamer">'+data.streamer+'</td>\
 			<td class="triviabot">'+data.triviabot+'</td>\
 			<td class="question" style="width:300px; text-align: center;"></td>\
@@ -179,5 +182,13 @@ function toggleRowActivity(data, toggle) {
 
 function resetBackground(target) {
 	$(target).css('background-color', 'FFF');
+}
+
+function streamStatus(data, status) {
+	if (status) {
+		$('#'+data.streamer+' .status').removeClass('inactive').addClass('active');
+	} else {
+		$('#'+data.streamer+' .status').removeClass('active').addClass('inactive');
+	}
 }
 /* endhelpers */
